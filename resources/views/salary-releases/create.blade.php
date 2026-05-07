@@ -37,8 +37,30 @@
             </div>
 
             <div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="use_manual_salary" id="use_manual_salary" value="1" {{ old('use_manual_salary') ? 'checked' : '' }} class="w-5 h-5 text-navy-900 border-navy-900 rounded" onchange="updatePreview(); toggleManualSalaryInput()">
+                    <span class="text-sm font-semibold text-navy-900">Use manual salary</span>
+                </label>
+                <p class="text-sm text-gray-600 mt-1">When checked, you can specify a custom salary amount instead of the stored employee salary</p>
+            </div>
+
+            <div id="manual_salary_div" style="display: none;">
+                <label for="manual_salary" class="block text-sm font-semibold text-navy-900 mb-1">Manual Salary Amount</label>
+                <input type="number" name="manual_salary" id="manual_salary" value="{{ old('manual_salary', 0) }}" step="0.01" min="0" class="w-full px-4 py-2 border border-navy-900 rounded" oninput="updatePreview()">
+                <p class="text-sm text-gray-600 mt-1">Enter the custom salary amount for this release</p>
+            </div>
+
+            <div>
                 <label for="deductions" class="block text-sm font-semibold text-navy-900 mb-1">Deductions</label>
                 <input type="number" name="deductions" id="deductions" value="{{ old('deductions', 0) }}" step="0.01" min="0" class="w-full px-4 py-2 border border-navy-900 rounded" oninput="updatePreview()">
+            </div>
+
+            <div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="skip_deductions" id="skip_deductions" value="1" {{ old('skip_deductions') ? 'checked' : '' }} class="w-5 h-5 text-navy-900 border-navy-900 rounded" onchange="updatePreview(); toggleDeductionsInput()">
+                    <span class="text-sm font-semibold text-navy-900">Skip all deductions (late, leave, and manual)</span>
+                </label>
+                <p class="text-sm text-gray-600 mt-1">When checked, all deductions will be set to 0 for this salary release</p>
             </div>
 
             <div>
@@ -114,10 +136,34 @@
     </div>
 
     <script>
+        function toggleDeductionsInput() {
+            const skipDeductions = document.getElementById('skip_deductions').checked;
+            const deductionsInput = document.getElementById('deductions');
+            if (skipDeductions) {
+                deductionsInput.disabled = true;
+                deductionsInput.value = 0;
+            } else {
+                deductionsInput.disabled = false;
+            }
+        }
+
+        function toggleManualSalaryInput() {
+            const useManualSalary = document.getElementById('use_manual_salary').checked;
+            const manualSalaryDiv = document.getElementById('manual_salary_div');
+            if (useManualSalary) {
+                manualSalaryDiv.style.display = 'block';
+            } else {
+                manualSalaryDiv.style.display = 'none';
+            }
+        }
+
         function updatePreview() {
             const employeeId = document.getElementById('employee_id').value;
             const deductions = document.getElementById('deductions').value || 0;
             const month = document.getElementById('month').value;
+            const skipDeductions = document.getElementById('skip_deductions').checked;
+            const useManualSalary = document.getElementById('use_manual_salary').checked;
+            const manualSalary = document.getElementById('manual_salary').value || 0;
             
             if (!employeeId) {
                 document.getElementById('preview_section').style.display = 'none';
@@ -135,7 +181,10 @@
                     employee_id: employeeId,
                     deductions: deductions,
                     month: month,
-                    release_date: document.getElementById('release_date').value
+                    release_date: document.getElementById('release_date').value,
+                    skip_deductions: skipDeductions,
+                    use_manual_salary: useManualSalary,
+                    manual_salary: manualSalary
                 })
             })
             .then(response => response.json())
@@ -249,6 +298,10 @@
             if (document.getElementById('employee_id').value) {
                 updatePreview();
             }
+            
+            // Initialize input states
+            toggleDeductionsInput();
+            toggleManualSalaryInput();
             
             // Add event listeners
             document.getElementById('month').addEventListener('change', function() {

@@ -50,6 +50,9 @@ class SalaryReleaseController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'month' => 'nullable|string',
             'release_date' => 'nullable|date',
+            'skip_deductions' => 'nullable|boolean',
+            'use_manual_salary' => 'nullable|boolean',
+            'manual_salary' => 'nullable|numeric|min:0',
         ]);
 
         $employee = Employee::findOrFail($request->employee_id);
@@ -146,7 +149,13 @@ class SalaryReleaseController extends Controller
             return $allowance->getAmountInBaseCurrency();
         });
         
-        $baseSalary = $employee->salary;
+        // Check if using manual salary
+        $useManualSalary = $request->boolean('use_manual_salary', false);
+        if ($useManualSalary) {
+            $baseSalary = $request->manual_salary ?? 0;
+        } else {
+            $baseSalary = $employee->salary;
+        }
         
         // Calculate Advanced Deductions (Late & Leave)
         $globalSchedule = $scheduleService->getSchedule($employee->user);
@@ -174,6 +183,15 @@ class SalaryReleaseController extends Controller
         $leaveDeduction = $extraLeaves * $oneDaySalary;
 
         $deductions = $request->deductions ?? 0;
+        
+        // Check if skip_deductions is enabled
+        $skipDeductions = $request->boolean('skip_deductions', false);
+        if ($skipDeductions) {
+            $deductions = 0;
+            $lateDeduction = 0;
+            $leaveDeduction = 0;
+        }
+        
         $totalCalculated = $baseSalary + $commissionAmount + $bonusAmount + $allowanceAmount - $deductions - $lateDeduction - $leaveDeduction;
         
         // Get employee currency or base currency
@@ -231,6 +249,9 @@ class SalaryReleaseController extends Controller
             'release_date' => 'required|date',
             'deductions' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
+            'skip_deductions' => 'nullable|boolean',
+            'use_manual_salary' => 'nullable|boolean',
+            'manual_salary' => 'nullable|numeric|min:0',
         ]);
         
         $employee = Employee::findOrFail($validated['employee_id']);
@@ -322,7 +343,13 @@ class SalaryReleaseController extends Controller
             return $allowance->getAmountInBaseCurrency();
         });
         
-        $baseSalary = $employee->salary;
+        // Check if using manual salary
+        $useManualSalary = $request->boolean('use_manual_salary', false);
+        if ($useManualSalary) {
+            $baseSalary = $request->manual_salary ?? 0;
+        } else {
+            $baseSalary = $employee->salary;
+        }
 
         // Calculate Advanced Deductions (Late & Leave)
         $globalSchedule = $scheduleService->getSchedule($employee->user);
@@ -350,6 +377,15 @@ class SalaryReleaseController extends Controller
         $leaveDeduction = $extraLeaves * $oneDaySalary;
 
         $deductions = $validated['deductions'] ?? 0;
+        
+        // Check if skip_deductions is enabled
+        $skipDeductions = $request->boolean('skip_deductions', false);
+        if ($skipDeductions) {
+            $deductions = 0;
+            $lateDeduction = 0;
+            $leaveDeduction = 0;
+        }
+        
         $totalAmount = $baseSalary + $commissionAmount + $bonusAmount + $allowanceAmount - $deductions - $lateDeduction - $leaveDeduction;
         
         $validated['user_id'] = auth()->id();
