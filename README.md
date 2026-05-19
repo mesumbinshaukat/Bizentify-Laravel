@@ -352,7 +352,7 @@ This project is open-sourced software licensed under the [MIT license](https://o
 
 ## 👥 Support
 
-For support, email [EMAIL_ADDRESS] or open an issue in the repository.
+For support, email mesum@worldoftech.company or open an issue in the repository.
 
 ---
 
@@ -367,9 +367,8 @@ For support, email [EMAIL_ADDRESS] or open an issue in the repository.
 
 ## 📞 Contact
 
-**Project Maintainer**: Your Name  
-**Email**: your.email@example.com  
-**Website**: https://bizentify.com
+**Project Maintainer**: Mesum Bin Shaukat  
+**Email**: mesum@worldoftech.company
 
 ---
 

@@ -25,8 +25,8 @@
                     <tbody>
                         @foreach($employeeAllowances as $allowance)
                             <tr class="border-b">
-                                <td class="py-3 px-4 font-semibold">{{ $allowance->employee->name }}</td>
-                                <td class="py-3 px-4">{{ $allowance->allowanceType->label }}</td>
+                                <td class="py-3 px-4 font-semibold">{{ $allowance->employee?->name ?? 'Deleted Employee' }}</td>
+                                <td class="py-3 px-4">{{ $allowance->allowanceType?->label ?? 'N/A' }}</td>
                                 <td class="py-3 px-4">{{ $allowance->currency ? $allowance->currency->symbol : ($baseCurrency->symbol ?? 'Rs.') }}{{ number_format($allowance->amount, 2) }}</td>
                                 <td class="py-3 px-4">
                                     <span class="px-2 py-1 rounded text-sm {{ $allowance->is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
